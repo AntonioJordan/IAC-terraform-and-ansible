@@ -1,4 +1,4 @@
-# Aquí van los resources + Config base
+# Aquí van los resource + Config base
 terraform {
   required_version = ">= 1.6"
   required_providers {
@@ -12,3 +12,5 @@ terraform {
 provider "aws" {
   region = "us-east-1"
 }
+
+# resource "aws_..."{...}
