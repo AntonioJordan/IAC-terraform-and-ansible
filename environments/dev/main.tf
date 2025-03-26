@@ -13,4 +13,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# resource "aws_..."{...}
+resource "aws_instance" "main_instance"{
+  ami           = "ami-12345678"
+  instance_type = var.instance_type
+}
