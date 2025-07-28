@@ -11,7 +11,7 @@ variable "tags_ec2" {
 }
 
 # sg
-variable "name" {
+variable "name_sg" {
   type = string
 }
 
@@ -65,11 +65,6 @@ variable "tags" {
 # asg
 variable "name_asg" {
   type = string
-}
-
-variable "tags_asg" {
-  type    = map(string)
-  default = {}
 }
 
 variable "min_size" {

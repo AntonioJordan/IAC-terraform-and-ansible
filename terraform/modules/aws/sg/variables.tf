@@ -1,14 +1,9 @@
-variable "name" {
+variable "name_sg" {
   type = string
 }
 
 variable "description" {
   type = string
-}
-
-variable "tags" {
-  type    = map(string)
-  default = {}
 }
 
 variable "ingress_rules" {
@@ -29,4 +24,7 @@ variable "egress_rules" {
     cidr_blocks = list(string)
   }))
   default = []
+}
+variable "vpc_id" {
+  type = string
 }

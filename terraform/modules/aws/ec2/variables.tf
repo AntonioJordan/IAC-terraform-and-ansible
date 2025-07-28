@@ -14,3 +14,8 @@ variable "tags" {
   type    = map(string)
   default = {}
 }
+
+variable "security_group_ids" {
+  type = list(string)
+}
+

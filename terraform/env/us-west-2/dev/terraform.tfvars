@@ -6,7 +6,7 @@ tags_ec2 = {
 }
 
 # SG
-name        = "security_group_ec2"
+name_sg        = "security_group_ec2"
 description = "Allow SSH and HTTP"
 
 ingress_rules = [
@@ -33,7 +33,6 @@ egress_rules = [
   }
 ]
 
-
 # VPC
 cidr_block     = "10.0.0.0/16"
 public_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -48,7 +47,3 @@ name_asg          = "asg-dev"
 min_size          = 1
 max_size          = 2
 desired_capacity  = 1
-tags_asg = {
-  Name = "asg-dev"
-  Env  = "dev"
-}

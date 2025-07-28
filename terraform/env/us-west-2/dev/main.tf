@@ -26,9 +26,8 @@ module "vpc" {
 module "security_group" {
   source      = "../../../modules/aws/sg"
   vpc_id      = module.vpc.vpc_id
-  tags        = var.tags
-  name        = "security_group_ec2"
-  description = "Security group for EC2 instance"
+  name_sg     = var.name_sg
+  description = var.description
 }
 
 # ec2
@@ -70,7 +69,7 @@ data "aws_ami" "amazon_linux" {
 # asg
 module "asg" {
   source              = "../../../modules/aws/asg"
-  name                = var.name_asg
+  name_asg            = var.name_asg
   ami                 = data.aws_ami.amazon_linux.id
   instance_type       = var.instance_type
   security_group_ids  = [module.security_group.security_group_id]
@@ -78,5 +77,4 @@ module "asg" {
   min_size            = var.min_size
   max_size            = var.max_size
   desired_capacity    = var.desired_capacity
-  tags_asg            = var.tags_asg
 }
