@@ -13,6 +13,7 @@ provider "aws" {
   region = "us-west-2"
 }
 
+# vpc
 module "vpc" {
   source         = "../../../modules/aws/vpc"
   cidr_block     = var.cidr_block
@@ -21,22 +22,49 @@ module "vpc" {
   tags           = var.tags
 }
 
+# sg
+module "security_group" {
+  source      = "../../../modules/aws/sg"
+  vpc_id      = module.vpc.vpc_id
+  tags        = var.tags
+  name        = "security_group_ec2"
+  description = "Security group for EC2 instance"
+}
 
-# data "aws_ami" "amazon_linux" {
-#   most_recent = true
-#   owners      = ["amazon"]
+# ec2
+module "ec2" {
+  source              = "../../../modules/aws/ec2"
+  subnet_id           = module.vpc.public_subnet_ids[0]
+  instance_type       = var.instance_type
+  tags                = var.tags_ec2
+  ami                 = data.aws_ami.amazon_linux.id
+  security_group_ids  = [module.security_group.security_group_id]
+}
 
-#   filter {
-#     name   = "name"
-#     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-#   }
-# }
 
-# resource "aws_instance" "main_instance" {
-#   ami           = data.aws_ami.amazon_linux.id
-#   instance_type = var.instance_type
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
 
-#   tags = {
-#     Name = "homelab-test"
-#   }
-# }
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+}
+
+

@@ -1,16 +1,3 @@
-
-# EC2
-variable "instance_type" {
-  type    = string
-  default = "t3.micro"
-}
-
-variable "tags_ec2" {
-  type    = map(string)
-  default = {}
-}
-
-# sg
 variable "name" {
   type = string
 }
@@ -23,7 +10,7 @@ variable "vpc_id" {
   type = string
 }
 
-variable "tags_vpc" {
+variable "tags" {
   type    = map(string)
   default = {}
 }
@@ -46,22 +33,4 @@ variable "egress_rules" {
     cidr_blocks = list(string)
   }))
   default = []
-}
-
-# Module VPC
-variable "cidr_block" {
-  type = string
-}
-
-variable "public_subnets" {
-  type = list(string)
-}
-
-variable "azs" {
-  type = list(string)
-}
-
-variable "tags" {
-  type = map(string)
-  default = {}
 }
