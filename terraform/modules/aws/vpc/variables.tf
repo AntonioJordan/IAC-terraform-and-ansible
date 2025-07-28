@@ -1,10 +1,3 @@
-
-# Direct in main.tf bad practice
-variable "instance_type" {
-  default = "t3.micro"
-}
-
-# Module VPC
 variable "cidr_block" {
   type = string
 }
