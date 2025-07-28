@@ -19,10 +19,6 @@ variable "description" {
   type = string
 }
 
-variable "vpc_id" {
-  type = string
-}
-
 variable "tags_vpc" {
   type    = map(string)
   default = {}
@@ -64,4 +60,26 @@ variable "azs" {
 variable "tags" {
   type = map(string)
   default = {}
+}
+
+# asg
+variable "name_asg" {
+  type = string
+}
+
+variable "tags_asg" {
+  type    = map(string)
+  default = {}
+}
+
+variable "min_size" {
+  type = number
+}
+
+variable "max_size" {
+  type = number
+}
+
+variable "desired_capacity" {
+  type = number
 }

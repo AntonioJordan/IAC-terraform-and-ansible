@@ -43,3 +43,12 @@ tags = {
   Env  = "dev"
 }
 
+# asg
+name_asg          = "asg-dev"
+min_size          = 1
+max_size          = 2
+desired_capacity  = 1
+tags_asg = {
+  Name = "asg-dev"
+  Env  = "dev"
+}
