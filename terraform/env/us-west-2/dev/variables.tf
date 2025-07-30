@@ -78,3 +78,13 @@ variable "max_size" {
 variable "desired_capacity" {
   type = number
 }
+
+# eks
+variable "eks_name" { type = string }
+variable "eks_cluster_role_arn" { type = string }
+variable "eks_node_role_arn" { type = string }
+
+variable "eks_instance_type" { type = string }
+variable "eks_desired" { type = number }
+variable "eks_min" { type = number }
+variable "eks_max" { type = number }

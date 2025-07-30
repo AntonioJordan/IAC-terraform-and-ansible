@@ -78,3 +78,16 @@ module "asg" {
   max_size            = var.max_size
   desired_capacity    = var.desired_capacity
 }
+
+# eks
+module "eks" {
+  source           = "../../../modules/aws/eks"
+  name             = var.eks_name
+  cluster_role_arn = var.eks_cluster_role_arn
+  node_role_arn    = var.eks_node_role_arn
+  subnets          = module.vpc.public_subnet_ids
+  instance_type    = var.eks_instance_type
+  desired          = var.eks_desired
+  min              = var.eks_min
+  max              = var.eks_max
+}

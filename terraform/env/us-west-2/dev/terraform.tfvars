@@ -47,3 +47,13 @@ name_asg          = "asg-dev"
 min_size          = 1
 max_size          = 2
 desired_capacity  = 1
+
+# eks
+eks_name             = "dev-eks"
+eks_cluster_role_arn = "arn:aws:iam::926803785433:role/eks-cluster"
+eks_node_role_arn    = "arn:aws:iam::926803785433:role/eks-node-role"
+
+eks_instance_type = "t3.medium"
+eks_desired       = 2
+eks_min           = 1
+eks_max           = 3
