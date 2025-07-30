@@ -79,12 +79,20 @@ module "asg" {
   desired_capacity    = var.desired_capacity
 }
 
+# iam
+module "eks_iam" {
+  source       = "../../../modules/aws/iam"
+  cluster_name = var.eks_name
+}
+
 # eks
 module "eks" {
   source           = "../../../modules/aws/eks"
   name             = var.eks_name
-  cluster_role_arn = var.eks_cluster_role_arn
-  node_role_arn    = var.eks_node_role_arn
+
+  cluster_role_arn = module.eks_iam.eks_cluster_role_arn
+  node_role_arn    = module.eks_iam.eks_node_role_arn
+
   subnets          = module.vpc.public_subnet_ids
   instance_type    = var.eks_instance_type
   desired          = var.eks_desired
