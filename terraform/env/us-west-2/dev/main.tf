@@ -15,12 +15,16 @@ provider "aws" {
 
 # vpc
 module "vpc" {
-  source         = "../../../modules/aws/vpc"
-  cidr_block     = var.cidr_block
-  public_subnets = var.public_subnets
-  azs            = var.azs
-  tags           = var.tags
+  source           = "../../../modules/aws/vpc"
+  name_vpc         = var.name_vpc
+  cidr_block       = var.cidr_block
+  public_subnets   = var.public_subnets
+  private_subnets  = var.private_subnets
+  azs              = var.azs
+  tags             = var.tags
+  region           = var.region
 }
+
 
 # sg
 module "security_group" {
@@ -93,7 +97,7 @@ module "eks" {
   cluster_role_arn = module.eks_iam.eks_cluster_role_arn
   node_role_arn    = module.eks_iam.eks_node_role_arn
 
-  subnets          = module.vpc.public_subnet_ids
+  private_subnets  = module.vpc.private_subnet_ids
   instance_type    = var.eks_instance_type
   desired          = var.eks_desired
   min              = var.eks_min
