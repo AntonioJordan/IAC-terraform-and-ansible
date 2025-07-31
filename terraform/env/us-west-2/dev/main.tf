@@ -15,16 +15,16 @@ provider "aws" {
 
 # vpc
 module "vpc" {
-  source           = "../../../modules/aws/vpc"
-  name_vpc         = var.name_vpc
-  cidr_block       = var.cidr_block
-  public_subnets   = var.public_subnets
-  private_subnets  = var.private_subnets
-  azs              = var.azs
-  tags             = var.tags
-  region           = var.region
+  source                 = "../../../modules/aws/vpc"
+  name_vpc               = var.name_vpc
+  cidr_block             = var.cidr_block
+  public_subnets         = var.public_subnets
+  private_subnets        = var.private_subnets
+  azs                    = var.azs
+  tags                   = var.tags
+  region                 = var.region
+  eks_security_group_id  = module.security_group.security_group_id
 }
-
 
 # sg
 module "security_group" {
