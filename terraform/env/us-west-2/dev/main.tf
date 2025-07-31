@@ -35,14 +35,16 @@ module "security_group" {
 }
 
 # ec2
-module "ec2" {
-  source              = "../../../modules/aws/ec2"
-  subnet_id           = module.vpc.public_subnet_ids[0]
-  instance_type       = var.instance_type
-  tags                = var.tags_ec2
-  ami                 = data.aws_ami.amazon_linux.id
-  security_group_ids  = [module.security_group.security_group_id]
-}
+
+# ec2 independiente comentamos no la queremos pero bien aplicada, queda de ejemplo
+# module "ec2" {
+#   source              = "../../../modules/aws/ec2"
+#   subnet_id           = module.vpc.public_subnet_ids[0]
+#   instance_type       = var.instance_type
+#   tags                = var.tags_ec2
+#   ami                 = data.aws_ami.amazon_linux.id
+#   security_group_ids  = [module.security_group.security_group_id]
+# }
 
 
 data "aws_ami" "amazon_linux" {
