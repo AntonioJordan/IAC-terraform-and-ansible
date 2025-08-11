@@ -1,4 +1,4 @@
-resource "aws_instance" "web_server" {
+resource "aws_instance" "ansible_controller" {
   ami                    = var.ami
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id

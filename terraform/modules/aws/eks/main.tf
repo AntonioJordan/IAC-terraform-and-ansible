@@ -1,3 +1,14 @@
+resource "aws_launch_template" "eks_nodes" {
+  name_prefix = "${var.name}-lt"
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "${var.name}-node"
+    }
+  }
+}
+
 resource "aws_eks_cluster" "cluster" {
   name     = var.name
   role_arn = var.cluster_role_arn
@@ -22,6 +33,11 @@ resource "aws_eks_node_group" "nodes" {
     desired_size = var.desired
     max_size     = var.max
     min_size     = var.min
+  }
+
+  launch_template {
+    id      = aws_launch_template.eks_nodes.id
+    version = "$Latest"
   }
 
   depends_on = [

@@ -1,3 +1,3 @@
 output "instance_id" {
-  value = aws_instance.web_server.id
+  value = aws_instance.ansible_controller.id
 }

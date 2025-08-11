@@ -1,7 +1,8 @@
 instance_type = "t3.micro"
 
-tags_ec2 = {
-  Name = "ec2-dev"
+# Ansible EC2
+tags_ansible_ec2 = {
+  Name = "ansible-ec2"
   Env  = "dev"
 }
 
@@ -58,4 +59,4 @@ eks_name          = "dev-eks"
 eks_instance_type = "t3.micro"
 eks_desired       = 2
 eks_min           = 1
-eks_max           = 3
+eks_max           = 2

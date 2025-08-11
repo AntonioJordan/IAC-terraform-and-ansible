@@ -5,7 +5,7 @@ variable "instance_type" {
   default = "t3.micro"
 }
 
-variable "tags_ec2" {
+variable "tags_ansible_ec2" {
   type    = map(string)
   default = {}
 }
