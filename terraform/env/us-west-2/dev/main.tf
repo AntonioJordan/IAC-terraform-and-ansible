@@ -32,6 +32,8 @@ module "security_group" {
   vpc_id      = module.vpc.vpc_id
   name_sg     = var.name_sg
   description = var.description
+  ingress_rules = var.ingress_rules
+  egress_rules  = var.egress_rules
 }
 
 # ec2
@@ -72,18 +74,18 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# asg
-module "asg" {
-  source              = "../../../modules/aws/asg"
-  name_asg            = var.name_asg
-  ami                 = data.aws_ami.amazon_linux.id
-  instance_type       = var.instance_type
-  security_group_ids  = [module.security_group.security_group_id]
-  subnet_ids          = module.vpc.public_subnet_ids
-  min_size            = var.min_size
-  max_size            = var.max_size
-  desired_capacity    = var.desired_capacity
-}
+# asg - Crea ec2 autoesclables solitarias no lo queremos
+# module "asg" {
+#   source              = "../../../modules/aws/asg"
+#   name_asg            = var.name_asg
+#   ami                 = data.aws_ami.amazon_linux.id
+#   instance_type       = var.instance_type
+#   security_group_ids  = [module.security_group.security_group_id]
+#   subnet_ids          = module.vpc.public_subnet_ids
+#   min_size            = var.min_size
+#   max_size            = var.max_size
+#   desired_capacity    = var.desired_capacity
+# }
 
 # iam
 module "eks_iam" {
