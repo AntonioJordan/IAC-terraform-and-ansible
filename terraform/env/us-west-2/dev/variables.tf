@@ -126,3 +126,9 @@ variable "iam_instance_profile" {
   description = "Nombre del IAM Instance Profile con permisos para usar la CMK"
   type        = string
 }
+
+variable "tags_ansible_core" {
+  description = "Mapa de etiquetas a aplicar a los recursos"
+  type        = map(string)
+}
+

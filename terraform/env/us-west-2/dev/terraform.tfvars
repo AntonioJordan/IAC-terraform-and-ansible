@@ -69,3 +69,9 @@ kms_name            = "alias/ansible-core"
 # Ansible core
 iam_instance_profile = "iam-profile-ansible"
 ansible_secret       = "clave-super-secreta"
+
+tags_ansible_core = {
+  Name        = "ansible-core"
+  Environment = "dev"
+  Project     = "eks-cluster"
+}

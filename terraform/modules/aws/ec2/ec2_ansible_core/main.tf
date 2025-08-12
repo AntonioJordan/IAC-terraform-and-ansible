@@ -9,7 +9,7 @@ resource "aws_instance" "ansible_controller" {
   subnet_id              = var.subnet_id
   vpc_security_group_ids = var.security_group_ids
   iam_instance_profile   = var.iam_instance_profile
-  tags                   = var.tags
+  tags                   = var.tags_ansible_core
   associate_public_ip_address = true
 
   user_data = <<-EOF

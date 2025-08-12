@@ -35,15 +35,21 @@ module "kms" {
   kms_name            = var.kms_name
 }
 
+# IAM para Ansible core
+module "iam_ansible_core" {
+  source      = "../../../modules/aws/iam/iam_ansible_core"
+  kms_key_arn = module.kms.kms_key_arn
+}
+
 # Ansible Core usando CMK(KMS)
 module "ansible_core" {
   source               = "../../../modules/aws/ec2/ec2_ansible_core"
   ami                  = data.aws_ami.amazon_linux.id
   instance_type        = var.instance_type
   subnet_id            = module.vpc.public_subnet_ids[0]
-  iam_instance_profile = var.iam_instance_profile
+  iam_instance_profile = module.iam_ansible_core.iam_instance_profile_name
   security_group_ids   = [module.security_group.security_group_id]
-  tags                 = var.tags
+  tags_ansible_core    = var.tags_ansible_core
   region               = var.region
   kms_key_id           = module.kms.kms_key_id
   ansible_secret       = var.ansible_secret
@@ -101,7 +107,7 @@ data "aws_ami" "amazon_linux" {
 
 # iam
 module "eks_iam" {
-  source       = "../../../modules/aws/iam"
+  source       = "../../../modules/aws/iam/iam_eks"
   cluster_name = var.eks_name
 }
 

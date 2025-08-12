@@ -18,11 +18,6 @@ variable "security_group_ids" {
   type        = list(string)
 }
 
-variable "tags" {
-  description = "Etiquetas a aplicar a la instancia"
-  type        = map(string)
-}
-
 variable "iam_instance_profile" {
   description = "Nombre del IAM Instance Profile con permisos KMS"
   type        = string
@@ -49,3 +44,9 @@ variable "root_volume_type" {
   type        = string
   default     = "gp3"
 }
+
+variable "tags_ansible_core" {
+  description = "Mapa de etiquetas a aplicar a los recursos"
+  type        = map(string)
+}
+
