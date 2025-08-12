@@ -60,3 +60,12 @@ eks_instance_type = "t3.micro"
 eks_desired       = 2
 eks_min           = 1
 eks_max           = 2
+
+# CMK para ansible core
+kms_description     = "KMS para Ansible Core"
+enable_key_rotation = true
+kms_name            = "alias/ansible-core"
+
+# Ansible core
+iam_instance_profile = "iam-profile-ansible"
+ansible_secret       = "clave-super-secreta"

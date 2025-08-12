@@ -26,6 +26,31 @@ module "vpc" {
   eks_security_group_id  = module.security_group.security_group_id
 }
 
+
+# CMK para ansible core
+module "kms" {
+  source              = "../../../modules/aws/kms"
+  kms_description     = var.kms_description
+  enable_key_rotation = var.enable_key_rotation
+  kms_name            = var.kms_name
+}
+
+# Ansible Core usando CMK(KMS)
+module "ansible_core" {
+  source               = "../../../modules/aws/ec2/ec2_ansible_core"
+  ami                  = data.aws_ami.amazon_linux.id
+  instance_type        = var.instance_type
+  subnet_id            = module.vpc.public_subnet_ids[0]
+  iam_instance_profile = var.iam_instance_profile
+  security_group_ids   = [module.security_group.security_group_id]
+  tags                 = var.tags
+  region               = var.region
+  kms_key_id           = module.kms.kms_key_id
+  ansible_secret       = var.ansible_secret
+}
+
+
+
 # sg
 module "security_group" {
   source      = "../../../modules/aws/sg"
@@ -35,19 +60,6 @@ module "security_group" {
   ingress_rules = var.ingress_rules
   egress_rules  = var.egress_rules
 }
-
-# ec2
-
-# ec2 para Ansible Controller
-module "ec2" {
-  source              = "../../../modules/aws/ec2"
-  subnet_id           = module.vpc.public_subnet_ids[0]
-  instance_type       = var.instance_type
-  tags                = var.tags_ansible_ec2
-  ami                 = data.aws_ami.amazon_linux.id
-  security_group_ids  = [module.security_group.security_group_id]
-}
-
 
 data "aws_ami" "amazon_linux" {
   most_recent = true

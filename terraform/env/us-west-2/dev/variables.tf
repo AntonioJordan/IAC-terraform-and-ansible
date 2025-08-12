@@ -103,3 +103,26 @@ variable "eks_instance_type" { type = string }
 variable "eks_desired"       { type = number }
 variable "eks_min"           { type = number }
 variable "eks_max"           { type = number }
+
+# Ansible Core usando CMK(KMS)
+variable "kms_description" {
+  type = string
+}
+
+variable "enable_key_rotation" {
+  type = bool
+}
+
+variable "kms_name" {
+  type = string
+}
+
+variable "ansible_secret" {
+  description = "Secreto a cifrar con KMS para Ansible Core"
+  type        = string
+  sensitive   = true
+}
+variable "iam_instance_profile" {
+  description = "Nombre del IAM Instance Profile con permisos para usar la CMK"
+  type        = string
+}
