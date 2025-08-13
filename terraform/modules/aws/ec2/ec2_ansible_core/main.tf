@@ -14,24 +14,23 @@ resource "aws_instance" "ansible_controller" {
 
   user_data = <<-EOF
 #!/bin/bash
-set -e
+set -euxo pipefail
+
 dnf -y update
 dnf -y install ansible-core git awscli
 
-echo "${aws_kms_ciphertext.ansible_secret.ciphertext_blob}" | base64 -d > /tmp/blob.bin
+echo "${aws_kms_ciphertext.ansible_secret.ciphertext_blob}" | base64 -d >/tmp/blob.bin
 SECRET=$(aws kms decrypt --region ${var.region} \
- --ciphertext-blob fileb:///tmp/blob.bin \
- --query Plaintext --output text | base64 -d)
+  --ciphertext-blob fileb:///tmp/blob.bin \
+  --query Plaintext --output text | base64 -d)
 
-mkdir -p /opt/ansible
-cd /opt/ansible
-
-cat > inventory.ini <<'INV'
+mkdir -p /opt/ansible && cd /opt/ansible
+cat > inventory.ini <<INV
 [all]
 TARGET_IP ansible_user=ec2-user ansible_password=$SECRET
 INV
 
-cat > playbook.yml <<'PLY'
+cat > playbook.yml <<PLY
 - hosts: all
   gather_facts: false
   tasks:
@@ -39,6 +38,7 @@ cat > playbook.yml <<'PLY'
       ansible.builtin.ping:
 PLY
 
-ansible-playbook -i inventory.ini playbook.yml || true
+ansible --version
+ansible-playbook -i inventory.ini playbook.yml
 EOF
 }
