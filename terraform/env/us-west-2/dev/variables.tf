@@ -104,7 +104,7 @@ variable "eks_desired"       { type = number }
 variable "eks_min"           { type = number }
 variable "eks_max"           { type = number }
 
-# Ansible Core usando CMK(KMS)
+# Ansible Core
 variable "kms_description" {
   type = string
 }
@@ -132,3 +132,8 @@ variable "tags_ansible_core" {
   type        = map(string)
 }
 
+variable "key_name" {
+  description = "Nombre del par de claves SSH para acceder a la instancia"
+  type        = string
+  default     = null
+}

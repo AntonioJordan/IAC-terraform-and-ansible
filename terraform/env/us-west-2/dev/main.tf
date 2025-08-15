@@ -26,33 +26,33 @@ module "vpc" {
   eks_security_group_id  = module.security_group.security_group_id
 }
 
-
-# CMK para ansible core
-module "kms" {
-  source              = "../../../modules/aws/kms"
-  kms_description     = var.kms_description
-  enable_key_rotation = var.enable_key_rotation
-  kms_name            = var.kms_name
-}
-
 # IAM para Ansible core
 module "iam_ansible_core" {
-  source      = "../../../modules/aws/iam/iam_ansible_core"
-  kms_key_arn = module.kms.kms_key_arn
+  source                   = "../../../modules/aws/iam/iam_ansible_core"
+  role_name                = var.iam_control_role_name
+  instance_profile_name    = var.iam_control_instance_profile_name
+  kms_key_arn              = var.kms_key_arn
 }
 
-# Ansible Core usando CMK(KMS)
-module "ansible_core" {
-  source               = "../../../modules/aws/ec2/ec2_ansible_core"
-  ami                  = data.aws_ami.amazon_linux.id
-  instance_type        = var.instance_type
-  subnet_id            = module.vpc.public_subnet_ids[0]
-  iam_instance_profile = module.iam_ansible_core.iam_instance_profile_name
-  security_group_ids   = [module.security_group.security_group_id]
-  tags_ansible_core    = var.tags_ansible_core
-  region               = var.region
-  kms_key_id           = module.kms.kms_key_id
-  ansible_secret       = var.ansible_secret
+resource "aws_kms_ciphertext" "ansible_secret" {
+  key_id    = var.kms_key_id
+  plaintext = var.ansible_secret
+}
+
+# Ansible Core 
+module "ec2_ansible_core" {
+  source                = "../../../modules/aws/ec2/ec2_ansible_core"
+  ami                   = data.aws_ami.amazon_linux.id
+  instance_type         = var.instance_type
+  subnet_id             = module.vpc.public_subnet_ids[0]
+  security_group_ids    = [module.security_group.security_group_id]
+  iam_instance_profile  = module.iam_ansible_core.instance_profile_name
+  key_name              = var.key_name
+  tags_ansible_core     = var.tags_ansible_core
+  region                = var.region
+  repo_url              = "https://github.com/AntonioJordan/IAC-terraform-and-ansible.git"
+  inventory_rel_path    = "ansible/inventories/aws/dev/aws_ec2.yaml"
+  ansible_secret_blob   = aws_kms_ciphertext.ansible_secret.ciphertext_blob
 }
 
 

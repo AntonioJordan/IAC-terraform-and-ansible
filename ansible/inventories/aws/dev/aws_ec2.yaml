@@ -5,7 +5,8 @@ filters:
   tag:Env: dev
 keyed_groups:
   - key: tags.Name
-    prefix: tag_Name
+    prefix: values
+    default_value: ec2
 hostnames:
   - public-ip-address
 compose:

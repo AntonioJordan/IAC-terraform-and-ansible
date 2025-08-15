@@ -1,4 +1,3 @@
-variable "kms_key_arn" {
-  description = "ARN de la CMK que usará Ansible Core para descifrar secretos"
-  type        = string
-}
+variable "iam_role_name"             { type = string }
+variable "iam_instance_profile_name" { type = string }
+variable "iam_control_user_name"     { type = string }
