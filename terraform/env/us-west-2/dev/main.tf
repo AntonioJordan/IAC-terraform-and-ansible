@@ -26,6 +26,23 @@ module "vpc" {
   eks_security_group_id  = module.security_group.security_group_id
 }
 
+# sg
+module "security_group" {
+  source      = "../../../modules/aws/sg"
+  vpc_id      = module.vpc.vpc_id
+  name_sg     = var.name_sg
+  description = var.description
+  ingress_rules = var.ingress_rules
+  egress_rules  = var.egress_rules
+}
+
+# iam for EKS
+module "eks_iam" {
+  source       = "../../../modules/aws/iam/iam_eks"
+  cluster_name = var.eks_name
+}
+
+
 # IAM para Ansible core
 module "iam_ansible_core" {
   source                   = "../../../modules/aws/iam/iam_ansible_core"
@@ -38,6 +55,20 @@ resource "aws_kms_ciphertext" "ansible_secret" {
   key_id    = var.kms_key_id
   plaintext = var.ansible_secret
 }
+
+# eks
+module "eks" {
+  source           = "../../../modules/aws/eks"
+  name             = var.eks_name
+  cluster_role_arn = module.eks_iam.eks_cluster_role_arn
+  node_role_arn    = module.eks_iam.eks_node_role_arn
+  private_subnets  = module.vpc.private_subnet_ids
+  instance_type    = var.eks_instance_type
+  desired          = var.eks_desired
+  min              = var.eks_min
+  max              = var.eks_max
+}
+
 
 # Ansible Core 
 module "ec2_ansible_core" {
@@ -53,18 +84,6 @@ module "ec2_ansible_core" {
   repo_url              = "https://github.com/AntonioJordan/IAC-terraform-and-ansible.git"
   inventory_rel_path    = "ansible/inventories/aws/dev/aws_ec2.yaml"
   ansible_secret_blob   = aws_kms_ciphertext.ansible_secret.ciphertext_blob
-}
-
-
-
-# sg
-module "security_group" {
-  source      = "../../../modules/aws/sg"
-  vpc_id      = module.vpc.vpc_id
-  name_sg     = var.name_sg
-  description = var.description
-  ingress_rules = var.ingress_rules
-  egress_rules  = var.egress_rules
 }
 
 data "aws_ami" "amazon_linux" {
@@ -104,24 +123,3 @@ data "aws_ami" "amazon_linux" {
 #   max_size            = var.max_size
 #   desired_capacity    = var.desired_capacity
 # }
-
-# iam
-module "eks_iam" {
-  source       = "../../../modules/aws/iam/iam_eks"
-  cluster_name = var.eks_name
-}
-
-# eks
-module "eks" {
-  source           = "../../../modules/aws/eks"
-  name             = var.eks_name
-
-  cluster_role_arn = module.eks_iam.eks_cluster_role_arn
-  node_role_arn    = module.eks_iam.eks_node_role_arn
-
-  private_subnets  = module.vpc.private_subnet_ids
-  instance_type    = var.eks_instance_type
-  desired          = var.eks_desired
-  min              = var.eks_min
-  max              = var.eks_max
-}
