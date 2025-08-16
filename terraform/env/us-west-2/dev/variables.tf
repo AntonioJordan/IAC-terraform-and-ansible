@@ -127,6 +127,11 @@ variable "iam_instance_profile" {
   type        = string
 }
 
+variable "kms_key_id" {
+  description = "KMS Key ID or ARN to use for encrypting Ansible secret"
+  type        = string
+}
+
 variable "tags_ansible_core" {
   description = "Mapa de etiquetas a aplicar a los recursos"
   type        = map(string)
