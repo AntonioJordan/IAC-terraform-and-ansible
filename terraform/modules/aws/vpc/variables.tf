@@ -1,38 +1,17 @@
-variable "name_vpc" {
-  description = "Nombre base para los recursos (prefijo en tags)"
-  type        = string
-}
-
-variable "cidr_block" {
-  description = "CIDR principal de la VPC"
-  type        = string
-}
-
-variable "public_subnets" {
-  description = "Lista de subnets públicas CIDR, una por AZ"
-  type        = list(string)
-}
-
-variable "private_subnets" {
-  description = "Lista de subnets privadas CIDR, una por AZ"
-  type        = list(string)
-}
-
+variable "name_vpc" { type = string }
+variable "cidr_block" { type = string }
+variable "public_subnets" { type = list(string) }
+variable "private_subnets" { type = list(string) }
 variable "azs" {
-  description = "Lista de availability zones donde desplegar subnets"
-  type        = list(string)
-}
+  type = list(string)
 
-variable "tags" {
-  description = "Tags adicionales para todos los recursos"
-  type        = map(string)
-  default     = {}
+  validation {
+    condition     = length(var.public_subnets) == length(var.azs) && length(var.private_subnets) == length(var.azs)
+    error_message = "Debe haber exactamente una subnet pública y una privada por AZ."
+  }
 }
-
-variable "region" {
-  type = string
-}
-
-variable "eks_security_group_id" {
-  type = string
+variable "region" { type = string }
+variable "tags" { 
+  type    = map(string) 
+  default = {} 
 }
