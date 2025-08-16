@@ -1,4 +1,3 @@
-
 terraform {
   required_version = ">= 1.6"
   required_providers {
@@ -9,54 +8,89 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = "us-west-2"
-}
-
-# vpc
-module "vpc" {
-  source                 = "../../../modules/aws/vpc"
-  name_vpc               = var.name_vpc
-  cidr_block             = var.cidr_block
-  public_subnets         = var.public_subnets
-  private_subnets        = var.private_subnets
-  azs                    = var.azs
-  tags                   = var.tags
-  region                 = var.region
-  eks_security_group_id  = module.security_group.security_group_id
-}
-
-# sg
-module "security_group" {
-  source      = "../../../modules/aws/sg"
+# --- SG general para EKS, ALB y EC2 ---
+resource "aws_security_group" "main" {
+  name        = "${var.name_vpc}_main_sg"
+  description = "SG general para ALB, EKS y Ansible Core"
   vpc_id      = module.vpc.vpc_id
-  name_sg     = var.name_sg
-  description = var.description
-  ingress_rules = var.ingress_rules
-  egress_rules  = var.egress_rules
+
+  ingress {
+    description = "Permitir HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Permitir HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH solo desde tu IP"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(var.tags, { Name = "${var.name_vpc}_main_sg" })
 }
 
-# iam for EKS
+# --- VPC con 2 públicas + 2 privadas + NATs + endpoints ---
+module "vpc" {
+  source                = "../../../modules/aws/vpc"
+  name_vpc              = var.name_vpc
+  cidr_block            = var.cidr_block
+  public_subnets        = var.public_subnets
+  private_subnets       = var.private_subnets
+  azs                   = var.azs
+  tags                  = var.tags
+  region                = var.region
+  eks_security_group_id = aws_security_group.main.id
+}
+
+# --- IAM para EKS ---
 module "eks_iam" {
   source       = "../../../modules/aws/iam/iam_eks"
   cluster_name = var.eks_name
 }
 
-
-# IAM para Ansible core
-module "iam_ansible_core" {
-  source                   = "../../../modules/aws/iam/iam_ansible_core"
-  role_name                = var.iam_control_role_name
-  instance_profile_name    = var.iam_control_instance_profile_name
-  kms_key_arn              = var.kms_key_arn
+# --- KMS dedicado para Ansible Core ---
+module "kms_ansible_core" {
+  source              = "../../../modules/aws/kms"
+  name                = "ansible-core"
+  description         = "CMK para Ansible Core"
+  enable_key_rotation = true
+  tags                = var.tags
 }
 
+# --- IAM para Ansible Core ---
+module "iam_ansible_core" {
+  source                = "../../../modules/aws/iam/iam_ansible_core"
+  role_name             = var.iam_control_role_name
+  instance_profile_name = var.iam_control_instance_profile_name
+  kms_key_arn           = module.kms_ansible_core.kms_key_arn
+}
+
+# --- Secreto encriptado con KMS ---
 resource "aws_kms_ciphertext" "ansible_secret" {
-  key_id    = var.kms_key_id
+  key_id    = module.kms_ansible_core.kms_key_id
   plaintext = var.ansible_secret
 }
 
-# eks
+# --- EKS (control plane gestionado, nodos en privadas) ---
 module "eks" {
   source           = "../../../modules/aws/eks"
   name             = var.eks_name
@@ -69,23 +103,35 @@ module "eks" {
   max              = var.eks_max
 }
 
-
-# Ansible Core 
+# --- EC2 Ansible Core en subnet pública ---
 module "ec2_ansible_core" {
-  source                = "../../../modules/aws/ec2/ec2_ansible_core"
-  ami                   = data.aws_ami.amazon_linux.id
-  instance_type         = var.instance_type
-  subnet_id             = module.vpc.public_subnet_ids[0]
-  security_group_ids    = [module.security_group.security_group_id]
-  iam_instance_profile  = module.iam_ansible_core.instance_profile_name
-  key_name              = var.key_name
-  tags_ansible_core     = var.tags_ansible_core
-  region                = var.region
-  repo_url              = "https://github.com/AntonioJordan/IAC-terraform-and-ansible.git"
-  inventory_rel_path    = "ansible/inventories/aws/dev/aws_ec2.yaml"
-  ansible_secret_blob   = aws_kms_ciphertext.ansible_secret.ciphertext_blob
+  source               = "../../../modules/aws/ec2/ec2_ansible_core"
+  ami                  = data.aws_ami.amazon_linux.id
+  instance_type        = var.instance_type
+  subnet_id            = module.vpc.public_subnet_ids[0]
+  security_group_ids   = [aws_security_group.main.id]
+  iam_instance_profile = module.iam_ansible_core.instance_profile_name
+  key_name             = var.key_name
+  tags_ansible_core    = var.tags_ansible_core
+  region               = var.region
+  repo_url             = "https://github.com/AntonioJordan/IAC-terraform-and-ansible.git"
+  inventory_rel_path   = "ansible/inventories/aws/dev/aws_ec2.yaml"
+  ansible_secret_blob  = aws_kms_ciphertext.ansible_secret.ciphertext_blob
 }
 
+# --- ALB (en subnets públicas) ---
+module "alb" {
+  source            = "../../../modules/aws/alb"
+  name_alb          = var.name_alb
+  vpc_id            = module.vpc.vpc_id
+  public_subnets    = module.vpc.public_subnet_ids
+  security_group_id = aws_security_group.main.id
+
+  # Placeholder: dará error hasta definir target groups
+  target_group_arns = []
+}
+
+# --- Imagen Amazon Linux 2 ---
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
@@ -111,13 +157,13 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-# asg - Crea ec2 autoesclables solitarias no lo queremos
+# --- ASG (comentado, no lo queremos) ---
 # module "asg" {
 #   source              = "../../../modules/aws/asg"
 #   name_asg            = var.name_asg
 #   ami                 = data.aws_ami.amazon_linux.id
 #   instance_type       = var.instance_type
-#   security_group_ids  = [module.security_group.security_group_id]
+#   security_group_ids  = [aws_security_group.main.id]
 #   subnet_ids          = module.vpc.public_subnet_ids
 #   min_size            = var.min_size
 #   max_size            = var.max_size
