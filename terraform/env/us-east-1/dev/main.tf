@@ -5,6 +5,14 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 5.0"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = ">= 4.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = ">= 2.0"
+    }
   }
 }
 
@@ -110,7 +118,7 @@ module "ec2_ansible_core" {
   subnet_id            = module.vpc.private_subnet_ids[0]
   security_group_ids   = [aws_security_group.main.id]
   iam_instance_profile = module.iam_ansible_core.instance_profile_name
-  key_name             = var.key_name
+  key_name             = aws_key_pair.ansible_core.key_name
   tags_ansible_core    = var.tags_ansible_core
   region               = var.region
   repo_url             = "https://github.com/AntonioJordan/IAC-terraform-and-ansible.git"
@@ -149,3 +157,20 @@ data "aws_ami" "amazon_linux" {
     values = ["ebs"]
   }
 }
+
+# --- Key Pair para EC2 Ansible Core ---
+resource "tls_private_key" "ansible_core" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "ansible_core" {
+  key_name   = "ansible-core-key"
+  public_key = tls_private_key.ansible_core.public_key_openssh
+}
+
+resource "local_file" "ansible_core_key" {
+  content  = tls_private_key.ansible_core.private_key_pem
+  filename = "${path.module}/ansible-core-key.pem"
+}
+
