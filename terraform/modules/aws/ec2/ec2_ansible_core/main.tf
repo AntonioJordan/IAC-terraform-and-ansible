@@ -6,20 +6,36 @@ resource "aws_instance" "this" {
   iam_instance_profile   = var.iam_instance_profile
   key_name               = var.key_name
 
-  user_data = <<-EOF
-              #!/bin/bash
-              yum update -y
+user_data = <<-EOF
+            #!/bin/bash
+            set -eux
 
-              # Instalación y activación del agente de SSM (para Session Manager)
-              yum install -y amazon-ssm-agent
-              systemctl enable amazon-ssm-agent
-              systemctl start amazon-ssm-agent
-              amazon-linux-extras install ansible2 -y
-              cd /home/ec2-user
-              git clone ${var.repo_url}
-              cd IAC-terraform-and-ansible
-              ansible-playbook -i ${var.inventory_rel_path} ansible/playbooks/aws/deploy.yaml
-              EOF
+            # Actualizar sistema
+            sudo yum update -y
+
+            # Instalar dependencias base
+            sudo yum install -y git python3 python3-pip amazon-ssm-agent
+
+            # Habilitar y arrancar SSM Agent
+            sudo systemctl enable amazon-ssm-agent
+            sudo systemctl start amazon-ssm-agent
+
+            # Instalar ansible-core desde pip (última versión estable)
+            sudo pip3 install --upgrade pip
+            sudo pip3 install ansible-core
+
+            # Instalar colección AWS y dependencias Python
+            sudo ansible-galaxy collection install amazon.aws
+            sudo pip3 install boto3 botocore
+
+            # Clonar tu repositorio
+            cd /home/ec2-user
+            sudo git clone ${var.repo_url}
+            cd IAC-terraform-and-ansible
+
+            # Ejecutar playbook
+            sudo ansible-playbook -i ${var.inventory_rel_path} ansible/playbooks/aws/deploy.yaml
+            EOF
 
   tags = var.tags_ansible_core
 }
