@@ -125,8 +125,6 @@ module "alb" {
   vpc_id            = module.vpc.vpc_id
   public_subnets    = module.vpc.public_subnet_ids
   security_group_id = aws_security_group.main.id
-
-  target_group_arns = [] # pendiente de definir
 }
 
 # --- Imagen Amazon Linux 2 ---

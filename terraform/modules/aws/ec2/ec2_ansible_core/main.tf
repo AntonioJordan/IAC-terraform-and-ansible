@@ -1,4 +1,4 @@
-resource "aws_instance" "ansible_core" {
+resource "aws_instance" "this" {
   ami                    = var.ami
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id
@@ -6,20 +6,16 @@ resource "aws_instance" "ansible_core" {
   iam_instance_profile   = var.iam_instance_profile
   key_name               = var.key_name
 
-  associate_public_ip_address = false # Subnet privada
-
-  tags = merge(var.tags_ansible_core, {
-    Name = "${var.tags_ansible_core["Name"]}-ansible-core"
-  })
-
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
-              amazon-linux-extras enable ansible2
-              yum install -y ansible git
-              cd /opt
-              git clone ${var.repo_url} ansible-repo
-              cd ansible-repo/${var.inventory_rel_path}
-              # Placeholder: podrías ejecutar un playbook inicial si quieres
+              amazon-linux-extras install ansible2 -y
+
+              cd /home/ec2-user
+              git clone ${var.repo_url}
+              cd IAC-terraform-and-ansible
+              ansible-playbook -i ${var.inventory_rel_path} ansible/playbooks/aws/deploy.yaml
               EOF
+
+  tags = var.tags_ansible_core
 }

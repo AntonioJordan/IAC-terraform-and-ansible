@@ -39,4 +39,4 @@ ansible_secret = "clave-super-secreta"
 name_alb = "dev-alb"
 
 # --- Seguridad ---
-my_ip = "X.X.X.X/32"
+my_ip = "80.24.35.17/32"

@@ -1,2 +1,9 @@
-output "ansible_core_id"         {value = aws_instance.ansible_core.id}
-output "ansible_core_private_ip" {value = aws_instance.ansible_core.private_ip}
+output "ansible_core_id" {
+  description = "ID de la instancia Ansible Core"
+  value       = aws_instance.this.id
+}
+
+output "ansible_core_private_ip" {
+  description = "IP privada de la instancia Ansible Core"
+  value       = aws_instance.this.private_ip
+}
