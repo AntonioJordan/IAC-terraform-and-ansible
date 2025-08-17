@@ -58,7 +58,6 @@ module "vpc" {
   azs                   = var.azs
   tags                  = var.tags
   region                = var.region
-  eks_security_group_id = aws_security_group.main.id
 }
 
 # --- IAM para EKS ---
