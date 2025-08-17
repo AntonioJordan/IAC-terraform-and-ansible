@@ -60,6 +60,15 @@ module "vpc" {
   region          = var.region
 }
 
+# --- KMS para cifrado de secretos ---
+module "kms" {
+  source              = "../../../modules/aws/kms"
+  name                = "ansible-core"
+  description         = "KMS para Ansible Core"
+  enable_key_rotation = true
+  tags                = var.tags
+}
+
 # --- IAM para EKS ---
 module "eks_iam" {
   source       = "../../../modules/aws/iam/iam_eks"
@@ -71,12 +80,12 @@ module "iam_ansible_core" {
   source                = "../../../modules/aws/iam/iam_ansible_core"
   role_name             = var.iam_control_role_name
   instance_profile_name = var.iam_control_instance_profile_name
-  kms_key_arn           = var.kms_key_arn
+  kms_key_arn           = module.kms.kms_key_arn
 }
 
 # --- Secreto encriptado con KMS ---
 resource "aws_kms_ciphertext" "ansible_secret" {
-  key_id    = var.kms_key_id
+  key_id    = module.kms.kms_key_id
   plaintext = var.ansible_secret
 }
 

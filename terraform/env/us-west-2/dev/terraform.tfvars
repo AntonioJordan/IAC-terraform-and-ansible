@@ -33,9 +33,6 @@ iam_control_role_name             = "ansible-core-role"
 iam_control_instance_profile_name = "ansible-core-profile"
 
 # --- KMS ---
-kms_key_id  = "arn:aws:kms:us-west-2:123456789012:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-kms_key_arn = "arn:aws:kms:us-west-2:123456789012:alias/ansible-core"
-
 ansible_secret = "clave-super-secreta"
 
 # --- ALB ---
