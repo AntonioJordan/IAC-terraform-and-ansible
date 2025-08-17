@@ -8,7 +8,7 @@ terraform {
   }
 }
 
-# --- SG general para EKS, ALB y EC2 ---
+# --- Security Group principal ---
 resource "aws_security_group" "main" {
   name        = "${var.name_vpc}_main_sg"
   description = "SG general para ALB, EKS y Ansible Core"
@@ -50,14 +50,14 @@ resource "aws_security_group" "main" {
 
 # --- VPC con 2 públicas + 2 privadas + NATs + endpoints ---
 module "vpc" {
-  source                = "../../../modules/aws/vpc"
-  name_vpc              = var.name_vpc
-  cidr_block            = var.cidr_block
-  public_subnets        = var.public_subnets
-  private_subnets       = var.private_subnets
-  azs                   = var.azs
-  tags                  = var.tags
-  region                = var.region
+  source          = "../../../modules/aws/vpc"
+  name_vpc        = var.name_vpc
+  cidr_block      = var.cidr_block
+  public_subnets  = var.public_subnets
+  private_subnets = var.private_subnets
+  azs             = var.azs
+  tags            = var.tags
+  region          = var.region
 }
 
 # --- IAM para EKS ---
@@ -66,26 +66,17 @@ module "eks_iam" {
   cluster_name = var.eks_name
 }
 
-# --- KMS dedicado para Ansible Core ---
-module "kms_ansible_core" {
-  source              = "../../../modules/aws/kms"
-  name                = "ansible-core"
-  description         = "CMK para Ansible Core"
-  enable_key_rotation = true
-  tags                = var.tags
-}
-
 # --- IAM para Ansible Core ---
 module "iam_ansible_core" {
   source                = "../../../modules/aws/iam/iam_ansible_core"
   role_name             = var.iam_control_role_name
   instance_profile_name = var.iam_control_instance_profile_name
-  kms_key_arn           = module.kms_ansible_core.kms_key_arn
+  kms_key_arn           = var.kms_key_arn
 }
 
 # --- Secreto encriptado con KMS ---
 resource "aws_kms_ciphertext" "ansible_secret" {
-  key_id    = module.kms_ansible_core.kms_key_id
+  key_id    = var.kms_key_id
   plaintext = var.ansible_secret
 }
 
@@ -102,12 +93,12 @@ module "eks" {
   max              = var.eks_max
 }
 
-# --- EC2 Ansible Core en subnet pública ---
+# --- EC2 Ansible Core en subnet privada ---
 module "ec2_ansible_core" {
   source               = "../../../modules/aws/ec2/ec2_ansible_core"
   ami                  = data.aws_ami.amazon_linux.id
   instance_type        = var.instance_type
-  subnet_id            = module.vpc.public_subnet_ids[0]
+  subnet_id            = module.vpc.private_subnet_ids[0]
   security_group_ids   = [aws_security_group.main.id]
   iam_instance_profile = module.iam_ansible_core.instance_profile_name
   key_name             = var.key_name
@@ -126,8 +117,7 @@ module "alb" {
   public_subnets    = module.vpc.public_subnet_ids
   security_group_id = aws_security_group.main.id
 
-  # Placeholder: dará error hasta definir target groups
-  target_group_arns = []
+  target_group_arns = [] # pendiente de definir
 }
 
 # --- Imagen Amazon Linux 2 ---
@@ -139,32 +129,16 @@ data "aws_ami" "amazon_linux" {
     name   = "name"
     values = ["amzn2-ami-hvm-*-x86_64-gp2"]
   }
-
   filter {
     name   = "architecture"
     values = ["x86_64"]
   }
-
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-
   filter {
     name   = "root-device-type"
     values = ["ebs"]
   }
 }
-
-# --- ASG (comentado, no lo queremos) ---
-# module "asg" {
-#   source              = "../../../modules/aws/asg"
-#   name_asg            = var.name_asg
-#   ami                 = data.aws_ami.amazon_linux.id
-#   instance_type       = var.instance_type
-#   security_group_ids  = [aws_security_group.main.id]
-#   subnet_ids          = module.vpc.public_subnet_ids
-#   min_size            = var.min_size
-#   max_size            = var.max_size
-#   desired_capacity    = var.desired_capacity
-# }

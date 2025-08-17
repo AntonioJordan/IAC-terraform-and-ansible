@@ -63,6 +63,16 @@ variable "iam_control_instance_profile_name" {
   type = string
 }
 
+variable "kms_key_arn" {
+  description = "ARN de la clave KMS usada para cifrar secretos de Ansible"
+  type        = string
+}
+
+variable "kms_key_id" {
+  description = "ID/ARN de la clave KMS usada para cifrar secretos de Ansible"
+  type        = string
+}
+
 # --- Ansible Core ---
 variable "ansible_secret" {
   type      = string
