@@ -29,18 +29,6 @@ resource "aws_iam_role_policy" "ansible_core_policy" {
       {
         Effect   = "Allow"
         Action   = [
-          "ssm:SendCommand",
-          "ssm:DescribeInstanceInformation",
-          "ssm:ListCommands",
-          "ssm:ListCommandInvocations",
-          "ec2messages:*",
-          "ssmmessages:*"
-        ]
-        Resource = "*"
-      },
-      {
-        Effect   = "Allow"
-        Action   = [
           "s3:GetObject",
           "s3:ListBucket"
         ]
@@ -57,6 +45,13 @@ resource "aws_iam_role_policy" "ansible_core_policy" {
   })
 }
 
+# Adjunta la policy oficial de SSM, necesaria para que la instancia se registre en Session Manager
+resource "aws_iam_role_policy_attachment" "ansible_core_ssm" {
+  role       = aws_iam_role.ansible_core_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+# Instance profile para vincular el rol a la instancia EC2
 resource "aws_iam_instance_profile" "ansible_core_profile" {
   name = var.instance_profile_name
   role = aws_iam_role.ansible_core_role.name

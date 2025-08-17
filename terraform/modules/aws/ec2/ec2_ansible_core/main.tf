@@ -9,8 +9,12 @@ resource "aws_instance" "this" {
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
-              amazon-linux-extras install ansible2 -y
 
+              # Instalación y activación del agente de SSM (para Session Manager)
+              yum install -y amazon-ssm-agent
+              systemctl enable amazon-ssm-agent
+              systemctl start amazon-ssm-agent
+              amazon-linux-extras install ansible2 -y
               cd /home/ec2-user
               git clone ${var.repo_url}
               cd IAC-terraform-and-ansible
