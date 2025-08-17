@@ -5,3 +5,4 @@ terraform.tfstate.backup
 .terraform.lock.hcl
 terraform-on-aws-ec2-main/*
 terraform-on-aws-ec2-main
+terraform/env/us-east-1/dev/ansible-core-key.pem
