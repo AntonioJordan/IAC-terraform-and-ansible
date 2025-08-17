@@ -1,13 +1,13 @@
 variable "region" {
   description = "AWS region to deploy resources in"
   type        = string
-  default     = "us-west-2"
+  default     = "us-east-1"
 }
 
 variable "bucket_name" {
   description = "Unique name for the S3 bucket to store Terraform state"
   type        = string
-  default     = "toni-bootstrap-tfstate-us-west-2"
+  default     = "toni-bootstrap-tfstate-us-east-1"
 }
 
 variable "dynamodb_table" {

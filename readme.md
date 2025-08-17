@@ -5,7 +5,7 @@ Vamos a montar esta arquitectura con Terrarom + Ansible.
 
 Para poder lanzarlo:
 
-    - Abrir terminal - .\terraform\env\us-west-2\dev
+    - Abrir terminal - .\terraform\env\us-east-1\dev
         - terraform init
         - terraform apply
               - Te va a pedir 2 valores de claves kms escribelos en terminal. Lo que quieras password random.
