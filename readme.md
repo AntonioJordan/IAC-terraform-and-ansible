@@ -12,6 +12,7 @@ Para poder lanzarlo:
   
     - Ansible se instala solo, te va a lanzar el deploy de dev. El resto de entornos no estan hechos.
                 - Por cada commit nuevo para relanzar playbook:
+                - sudo -i
                 - cd /home/ec2-user/IAC-terraform-and-ansible
                 - sudo git pull
                 - sudo ansible-playbook -i ansible/inventories/aws/dev/aws_ec2.yaml ansible/playbooks/aws/deploy.yaml
