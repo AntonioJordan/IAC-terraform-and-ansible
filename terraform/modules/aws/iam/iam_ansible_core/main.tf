@@ -56,3 +56,27 @@ resource "aws_iam_instance_profile" "ansible_core_profile" {
   name = var.instance_profile_name
   role = aws_iam_role.ansible_core_role.name
 }
+
+resource "aws_iam_role_policy" "ansible_core_ec2_read" {
+  name = "${var.role_name}-ec2-read"
+  role = aws_iam_role.ansible_core_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = [
+          "ec2:DescribeInstances",
+          "ec2:DescribeTags",
+          "ec2:DescribeRegions",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}

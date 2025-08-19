@@ -18,21 +18,33 @@ resource "aws_instance" "this" {
             # Actualizar sistema
             yum update -y
 
-            # Instalar dependencias base
-            yum install -y git python3 python3-pip amazon-ssm-agent
+            # Instalar dependencias base y toolchain para compilar Python
+            yum install -y git gcc gcc-c++ make wget tar \
+              openssl-devel bzip2 bzip2-devel libffi-devel zlib-devel amazon-ssm-agent
 
             # Habilitar y arrancar SSM Agent
             systemctl enable amazon-ssm-agent
             systemctl start amazon-ssm-agent
 
-            # Instalar ansible-core desde pip (última versión estable)
-            pip3 install --upgrade pip
-            pip3 install ansible-core
+            # Compilar e instalar Python 3.9
+            cd /usr/src
+            wget https://www.python.org/ftp/python/3.9.16/Python-3.9.16.tgz
+            tar xzf Python-3.9.16.tgz
+            cd Python-3.9.16
+            ./configure --enable-optimizations
+            make altinstall
 
-            # Instalar colección AWS y dependencias Python
-            ansible-galaxy collection install amazon.aws
-            pip3 install boto3 botocore
-            export PATH=$PATH:/usr/local/bin
+            # Instalar ansible-core y dependencias en Python 3.9
+            /usr/local/bin/python3.9 -m ensurepip
+            /usr/local/bin/python3.9 -m pip install --upgrade pip
+            /usr/local/bin/python3.9 -m pip install "ansible-core>=2.14,<2.17" boto3 botocore
+
+            # Añadir /usr/local/bin al PATH
+            echo 'export PATH=/usr/local/bin:$PATH' >> /etc/profile
+            export PATH=/usr/local/bin:$PATH
+
+            # Instalar colección AWS
+            /usr/local/bin/ansible-galaxy collection install amazon.aws
 
             # Clonar repositorio
             cd /home/ec2-user
@@ -40,7 +52,7 @@ resource "aws_instance" "this" {
             cd IAC-terraform-and-ansible
 
             # Ejecutar playbook
-            ansible-playbook -i ${var.inventory_rel_path} ansible/playbooks/aws/deploy.yaml
+            /usr/local/bin/ansible-playbook -i ${var.inventory_rel_path} ansible/playbooks/aws/deploy.yaml
             EOF
 
   tags = var.tags_ansible_core
