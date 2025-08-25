@@ -108,6 +108,7 @@ module "eks" {
   desired          = var.eks_desired
   min              = var.eks_min
   max              = var.eks_max
+  tags_eks  = merge(var.tags, { Env = "dev" })
 }
 
 # --- EC2 Ansible Core en subnet privada ---

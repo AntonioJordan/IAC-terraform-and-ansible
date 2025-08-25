@@ -3,11 +3,13 @@ resource "aws_launch_template" "eks_nodes" {
 
   tag_specifications {
     resource_type = "instance"
-    tags = {
-      Name = "${var.name}-node"
-    }
+    tags = merge(
+      { Name = "${var.name}-node" },
+      var.tags_eks
+    )
   }
 }
+
 
 resource "aws_eks_cluster" "cluster" {
   name     = var.name
@@ -47,4 +49,7 @@ resource "aws_eks_node_group" "nodes" {
   lifecycle {
     prevent_destroy = false
   }
+
+  tags = var.tags_eks
+
 }

@@ -6,3 +6,7 @@ variable "instance_type" { type = string }
 variable "desired" { type = number }
 variable "min" { type = number }
 variable "max" { type = number }
+variable "tags_eks" {
+  type    = map(string)
+  default = {}
+}

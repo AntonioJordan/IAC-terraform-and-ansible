@@ -54,6 +54,11 @@ variable "eks_max" {
   type = number
 }
 
+variable "tags_eks" {
+  type    = map(string)
+  default = {}
+}
+
 # --- IAM para Ansible Core ---
 variable "iam_control_role_name" {
   type = string
