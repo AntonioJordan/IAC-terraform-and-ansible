@@ -2,4 +2,5 @@
   hosts: all
   become: true
   roles:
+    - common
     - aws-app/eks-ec2
