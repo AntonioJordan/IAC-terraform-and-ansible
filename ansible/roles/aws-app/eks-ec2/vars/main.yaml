@@ -1,5 +1,13 @@
+# Common packages required on EC2 nodes
 common_packages:
   - docker
   - git
   - curl
   - amazon-efs-utils
+
+# Users to be added to the docker group
+docker_users:
+  - ec2-user
+
+# EKS version used to download the proper kubectl binary
+eks_version: "1.28"
