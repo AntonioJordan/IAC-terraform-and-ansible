@@ -1,0 +1,8 @@
+- name: Teardown configuration from EKS EC2 nodes
+  hosts: all
+  become: true
+  tasks:
+    - name: Stop Docker
+      service:
+        name: docker
+        state: stopped

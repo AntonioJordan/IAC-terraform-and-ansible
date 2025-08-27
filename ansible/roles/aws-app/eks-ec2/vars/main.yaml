@@ -1,0 +1,5 @@
+common_packages:
+  - docker
+  - git
+  - curl
+  - amazon-efs-utils

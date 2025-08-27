@@ -1,0 +1,5 @@
+- name: Deploy configuration to EKS EC2 nodes
+  hosts: all
+  become: true
+  roles:
+    - aws-app/eks-ec2
