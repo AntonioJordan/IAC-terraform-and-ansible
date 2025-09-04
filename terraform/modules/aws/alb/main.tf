@@ -1,3 +1,5 @@
+# This alb is public cause is exposing external services
+#tfsec:ignore:aws-elb-alb-not-public
 resource "aws_lb" "this" {
   name               = var.name_alb
   internal           = false
@@ -6,6 +8,7 @@ resource "aws_lb" "this" {
   subnets            = var.public_subnets
 
   enable_deletion_protection = false
+  drop_invalid_header_fields = true
 
   tags = merge(var.tags, {
     Name = var.name_alb
