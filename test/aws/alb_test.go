@@ -1,29 +1,31 @@
-package helpers
+package test
 
 import (
 	"testing"
+	"time"
 
-	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/AntonioJordan/IAC-terraform-and-ansible/test/helpers"
+	http_helper "github.com/gruntwork-io/terratest/modules/http-helper"
 )
 
-// Deploy aplica un módulo Terraform y devuelve las opciones
-func Deploy(t *testing.T, path string) *terraform.Options {
-	t.Helper()
-	opts := &terraform.Options{
-		TerraformDir: path,
-	}
-	terraform.InitAndApply(t, opts)
-	return opts
-}
+func TestAlb(t *testing.T) {
+	t.Parallel()
 
-// Destroy limpia recursos creados por Deploy
-func Destroy(t *testing.T, opts *terraform.Options) {
-	t.Helper()
-	terraform.Destroy(t, opts)
-}
+	// Deploy ALB module
+	opts := helpers.Deploy(t, "../../terraform/modules/aws/alb")
+	defer helpers.Destroy(t, opts)
 
-// Output obtiene un valor de output por nombre
-func Output(t *testing.T, opts *terraform.Options, name string) string {
-	t.Helper()
-	return terraform.Output(t, opts, name)
+	// Get ALB DNS name
+	albDns := helpers.Output(t, opts, "alb_dns_name")
+
+	// Validate ALB responds HTTP 200
+	http_helper.HttpGetWithRetry(
+		t,
+		"http://"+albDns,
+		nil,
+		200,
+		"",
+		30,
+		5*time.Second,
+	)
 }

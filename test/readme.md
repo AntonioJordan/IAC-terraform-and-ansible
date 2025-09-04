@@ -9,5 +9,6 @@ go get github.com/aws/aws-sdk-go-v2/service/ec2
 go get github.com/aws/aws-sdk-go-v2/service/iam
 go get github.com/aws/aws-sdk-go-v2/service/kms
 go get github.com/stretchr/testify/assert
+go get github.com/stretchr/testify@latest
 
 go mod tidy
