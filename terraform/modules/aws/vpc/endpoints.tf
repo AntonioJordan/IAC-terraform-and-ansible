@@ -21,7 +21,8 @@ resource "aws_security_group" "vpc_interface_sg" {
   description = "SG for VPC Interface Endpoints"
   vpc_id      = aws_vpc.main.id
 
-  ingress { 
+  ingress {
+    description = "Allow HTTPS traffic from VPC CIDR" 
     from_port   = 443 
     to_port     = 443 
     protocol    = "tcp" 
@@ -29,6 +30,7 @@ resource "aws_security_group" "vpc_interface_sg" {
   }
 
   egress  { 
+    description = "Allow outbound traffic within VPC"
     from_port   = 0   
     to_port     = 0   
     protocol    = "-1"  

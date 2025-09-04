@@ -8,8 +8,21 @@ resource "aws_launch_template" "eks_nodes" {
       var.tags_eks
     )
   }
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+  }
 }
 
+resource "aws_kms_key" "eks" {
+  description             = "CMK para cifrado de Kubernetes Secrets en EKS"
+  deletion_window_in_days = 10
+  enable_key_rotation     = true
+}
+
+#tfsec:ignore:aws-eks-enable-control-plane-logging
 resource "aws_eks_cluster" "cluster" {
   name     = var.name
   role_arn = var.cluster_role_arn
@@ -18,6 +31,13 @@ resource "aws_eks_cluster" "cluster" {
     subnet_ids              = var.private_subnets
     endpoint_public_access  = false
     endpoint_private_access = true
+  }
+
+  encryption_config {
+    resources = ["secrets"]
+    provider {
+      key_arn = aws_kms_key.eks.arn
+    }
   }
 
   lifecycle {
