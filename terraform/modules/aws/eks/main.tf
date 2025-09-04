@@ -10,13 +10,14 @@ resource "aws_launch_template" "eks_nodes" {
   }
 }
 
-
 resource "aws_eks_cluster" "cluster" {
   name     = var.name
   role_arn = var.cluster_role_arn
 
   vpc_config {
-    subnet_ids = var.private_subnets
+    subnet_ids              = var.private_subnets
+    endpoint_public_access  = false
+    endpoint_private_access = true
   }
 
   lifecycle {
@@ -51,5 +52,4 @@ resource "aws_eks_node_group" "nodes" {
   }
 
   tags = var.tags_eks
-
 }

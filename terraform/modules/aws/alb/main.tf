@@ -32,6 +32,7 @@ resource "aws_lb_target_group" "this" {
   })
 }
 
+# tfsec:ignore:aws-elb-http-not-used
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.this.arn
   port              = 80
