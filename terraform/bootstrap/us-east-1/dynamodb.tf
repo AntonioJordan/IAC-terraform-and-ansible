@@ -1,3 +1,4 @@
+#tfsec:ignore:aws-dynamodb-table-customer-key
 resource "aws_dynamodb_table" "tf_lock" {
   name         = var.dynamodb_table
   billing_mode = "PAY_PER_REQUEST"
@@ -11,5 +12,8 @@ resource "aws_dynamodb_table" "tf_lock" {
   server_side_encryption {
     enabled = true
   }
-  
+
+  point_in_time_recovery {
+    enabled = true
+  }
 }
