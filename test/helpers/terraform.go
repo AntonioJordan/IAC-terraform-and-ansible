@@ -11,7 +11,6 @@ func Deploy(t *testing.T, path string) *terraform.Options {
 	t.Helper()
 	opts := &terraform.Options{
 		TerraformDir: path,
-		VarFiles:     []string{"../../../env/us-east-1/dev/terraform.tfvars"},
 	}
 	terraform.InitAndApply(t, opts)
 	return opts

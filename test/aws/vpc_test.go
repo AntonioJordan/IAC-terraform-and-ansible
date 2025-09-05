@@ -10,7 +10,7 @@ func TestVpcModule(t *testing.T) {
 	t.Parallel()
 
 	// Deploy VPC module
-	opts := helpers.Deploy(t, "../../terraform/modules/aws/vpc")
+	opts := helpers.Deploy(t, "../fixtures/vpc")
 	defer helpers.Destroy(t, opts)
 
 	// --- VPC ---

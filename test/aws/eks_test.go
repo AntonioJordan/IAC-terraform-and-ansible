@@ -10,7 +10,7 @@ func TestEksModule(t *testing.T) {
 	t.Parallel()
 
 	// Deploy EKS module
-	opts := helpers.Deploy(t, "../../terraform/modules/aws/eks")
+	opts := helpers.Deploy(t, "../fixtures/eks")
 	defer helpers.Destroy(t, opts)
 
 	// --- Cluster ---

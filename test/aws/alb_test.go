@@ -12,7 +12,7 @@ func TestAlb(t *testing.T) {
 	t.Parallel()
 
 	// Deploy ALB module
-	opts := helpers.Deploy(t, "../../terraform/modules/aws/alb")
+	opts := helpers.Deploy(t, "../fixtures/alb")
 	defer helpers.Destroy(t, opts)
 
 	// Get ALB DNS name
