@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 module "alb" {
-  source = "../../../../terraform/modules/aws/alb"
+  source = "../../../terraform/modules/aws/alb"
 
   # Mock values
   name_alb          = "test-alb"
@@ -12,14 +12,8 @@ module "alb" {
   public_subnets    = ["subnet-111111", "subnet-222222"]
 
   tags = {
-    Environment = "test"
-    Project     = "terratest"
+    Env = "test"
   }
-}
-
-# Output to be validated in tests
-output "alb_arn" {
-  value = module.alb.this_lb_arn
 }
 
 output "alb_dns_name" {
